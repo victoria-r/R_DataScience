@@ -1,0 +1,126 @@
+---
+title: "Quick Analysis Using msleep Data"
+author: "Victoria Liebsch-Aljawahiri"
+date: "2022-09-12"
+output: 
+  html_document:
+    theme: cerulean
+    highlight: kate
+    code_folding: hide
+    df_print: paged
+    html_print: kable
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Perparations 
+
+Load required libraries and custom functions.
+
+```{r, message = FALSE}
+library(dplyr)
+library(ggplot2)
+
+# Functions
+# Theme for plot
+cool_theme <- function() {
+  theme_minimal() +
+  theme(
+    text = element_text(family = "Bookman", color = "gray25"),
+    plot.subtitle = element_text(size = 12),
+    plot.caption = element_text(color = "gray30"),
+    plot.background = element_rect(fill = "gray95"),
+    plot.margin = unit(c(5, 10, 5, 10), units = "mm")
+  )
+}
+```
+
+## Question 1
+
+DataCamp completion of "Intermediate R" and "Data Manipulation with dyplr".
+
+### The following questions will use the built-in dataset ```msleep```.
+
+## Question 2
+
+Calculate the proportion of each category of ```vore``` as a percentage and visualize the results using a bar 
+chart. Comment on the results. 
+
+```{r}
+ggplot(msleep, aes(x = vore, y = percent, fill = vore)) +
+  geom_bar(aes(y=(after_stat(count))/sum(after_stat(count))), show.legend = FALSE) +
+  scale_y_continuous(labels = scales::percent) +
+  cool_theme() +
+  labs(title = "'Vore' Category Percentages",
+       x = "Vore",
+       y = "Percent")
+```
+
+According to the results visualized by the bar chat above, we can see that herbivores (```herbi```) are the most prevalent in the data collected. This makes up over one-third or about 38% of the mammals. Carnivores (```carni```) and omnivores (```omni```) are about the same percentage at around 24%, with there being slightly more omnivores. There also is an unspecified column (```NA```) which is the four prevalent, making up about 8% of the data. This means that the "-vore" of a mammal was not specified or documented. The least prevalent of all mammals are the insectivores (```insecti```), which amount to about 6%. 
+
+## Question 3
+
+Filter the data to extract data for just omnivores. Hint: vore == ‘herbi’ and vore == ‘carni’. Calculate the 
+mean ```sleep_total``` for that group. 
+
+```{r}
+msleep %>%
+  filter(vore == "omni") %>%
+  summarize(mean(sleep_total))
+```
+
+The mean ```sleep_total``` for omnivores in the ```msleep``` data is 10.925 hours.
+
+## Question 4
+
+Create a scatterplot showing the relationship between ```bodywt``` and ```brainwt```. Comment on any correlation 
+that is visually apparent. Tip: if you rescale the x and y axis using a logarithmic scale, it may help you to 
+interpret the visualization better e.g. you can append the following to ggplot: scale_x_log10() and 
+scale_y_log10(). 
+
+```{r}
+ggplot(msleep, aes(x = bodywt, y = brainwt)) +
+  geom_point(na.rm = TRUE, color = "darkcyan") +
+  scale_x_log10() +
+  scale_y_log10() +
+  cool_theme() +
+  labs(title = "Mammal Body weight vs Brain weight",
+       x = "body weight",
+       y = "brain weight")
+```
+
+The graph above shows a significant correlation between ```bodywt``` and ```brainwt```. It is shown that as the body weight of a mammal increases so does their brain weight. 
+
+## Question 5
+
+Calculate the Pearson coefficient of correlation in R, to evaluate the strength of the correlation between 
+```bodywt``` and ```brainwt```. Did the results support your original assumptions from question 4? 
+
+```{r}
+cor(log10(msleep$bodywt),msleep$brainwt,use = "complete.obs")
+```
+
+The calculated Pearson coefficient of correlation for ```bodywt``` and ```brainwt``` is greater than 0.5, thus indicating a strong positive correlation. These results support my original assumptions from question 4.
+
+## Question 6
+
+Determine which mammals are outliers in terms of ```sleep_total```. Outliers, for the sake of this question, 
+are defined as values that are more than 1.5 standard deviations from the mean. Display the ```name``` and 
+```sleep_total``` of the mammals which are outliers. 
+
+```{r}
+mean_tsleep <- mean(msleep$sleep_total)
+sd_tsleep <- sd(msleep$sleep_total)
+msleep$z_score <- (abs(mean_tsleep - msleep$sleep_total) / sd_tsleep)
+
+msleep %>%
+  group_by(name) %>%
+  filter(z_score > 1.5) %>%
+  summarize(name, sleep_total)
+
+```
+
+As we can see from the output above, there are 13 mammals that classify as outliers in the ```msleep``` dataframe. 
+

@@ -1,0 +1,149 @@
+---
+title: "Introduction and Essentials"
+author: "Victoria Liebsch-Aljawahiri"
+date: "2022-09-08"
+output: 
+  html_document:
+    theme: cerulean
+    highlight: kate
+    code_folding: hide
+    df_print: paged
+    html_print: kable
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Perparations 
+
+Load required libraries and custom functions.
+
+```{r, message = FALSE}
+library(tidyverse)
+
+# Functions
+# Theme for plot
+cool_theme <- function() {
+  theme_minimal() +
+  theme(
+    text = element_text(family = "Bookman", color = "gray25"),
+    plot.subtitle = element_text(size = 12),
+    plot.caption = element_text(color = "gray30"),
+    plot.background = element_rect(fill = "gray95"),
+    plot.margin = unit(c(5, 10, 5, 10), units = "mm")
+  )
+}
+```
+
+## Question 1 
+
+A data frame has the variables of a data set as columns and the observations as rows. Basically, a data frame is a combination of data sets that contain different data types. The code below shows an example of a data frame. I have used the ```head()``` function to shorten how much of the data frame is printed out. 
+
+```{r}
+head(iris)
+```
+
+## Question 2 
+Create a data frame with 3 variables. The 3 variables should be cars, mpg, cost.
+The variable cars should contain 3 inputs. (Truck, Car, SUV)
+The variable mpg should contain 3 inputs (11, 30, 24)
+The variable cost should contain 3 inputs (45000,25000,35000)
+The data frame is printed below.
+
+```{r}
+cars <- c("Truck", "Car", "SUV")
+mpg <- c(11, 30, 24)
+cost <- c(45000, 25000, 35000)
+vehicle_info <- data.frame(cars, mpg, cost)
+vehicle_info
+```
+
+## Question 2a
+
+Select row 1 in column 3, what was selected?   The first row of the ```cost``` variable.
+Select rows 1 through 3, what was selected?   The entire data frame. 
+Select the last column, what was selected?   All rows of the ```cost``` variable.
+
+```{r}
+vehicle_info[1,3]
+vehicle_info[1:3,]
+vehicle_info[,3]
+```
+
+
+### Questions 3-5 will use the built-in dataset ```mtcars```.
+
+## Question 3
+
+Display the first 3 rows of the data set and display the last 5 rows. Hint: ```head()``` and ```tail()``` are helpful
+functions.
+
+```{r}
+mtcars[1:3,]
+mtcars[28:32,]
+```
+
+## Question 4 
+
+Display the column names of two categorical variables and two continuous variables.
+
+```{r}
+?mtcars
+str(mtcars)
+colnames(mtcars)[2]   # categorical
+colnames(mtcars)[8]   # categorical
+colnames(mtcars)[1]   # continuous
+colnames(mtcars)[3]   # continuous
+```
+
+## Question 5 
+
+Type and execute the code ```ggplot(mtcars, aes(x=disp, y=mpg))``` in R studio. Does the code display a chart? If so, explain the chart that
+was displayed; if the chart is not displayed, indicate what is missing and how would you update the code
+to show a scatterplot showing the relationship between ```disp``` and ```mpg```.
+
+```{r}
+ggplot(mtcars, aes(x=disp, y=mpg)) +
+  cool_theme()
+```
+
+The code above displays a blank chart. To fix this you must add the ```geom_plot()``` function to the code. Below is the updated code showing the relationship between ```disp``` and ```mpg```.
+
+```{r}
+ggplot(data = mtcars) +
+  geom_point(mapping = aes(x = disp, y = mpg)) +
+  cool_theme()
+```
+
+
+### Questions 6&7 will use the dataset ``mpg``.
+
+## Question 6 
+
+Create a scatterplot showing the relationship between ```displ``` and ```hwy```. Color each point based on the
+number of cylinders (```cyl```). Explain the scatterplot.
+
+```{r}
+ggplot(data = ggplot2::mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = cyl)) +
+  cool_theme() 
+```
+
+This scatter plot shows the relationship between three variables (```hwy```, ```displ```, ```cyl```) while still using a 2-D x,y plane. 
+
+## Question 7
+
+Copy the code for the scatter plot in question 6 and update it to apply facet_wrap using the ```drv``` column.
+What does the resulting charts indicate about rear wheel drive vehicles when compared to 4wd and front-
+wheel drive? Hint: use the help function to get more information on ```facet_wrap```, e.g. ```?facet_wrap```.
+
+```{r}
+ggplot(data = ggplot2::mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = cyl)) +
+  facet_wrap(vars(drv)) +
+  cool_theme()
+```
+
+The charts reveal that rear wheel drive vehicles have the lowest variety of number of cylinders and tend to have more engine displacement (in liters), when compared to front and 4 wheel drive vehicles.
+
